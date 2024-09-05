@@ -1,0 +1,15 @@
+//Accepts ints, maybe not float compatible yet
+//One the program stops running, it backtracks on all the changes
+int a = 1
+
+write(Number,Address)
+
+int c = read(Address)
+addr e = locateRoot("My Suika")
+arr f = locate(Number,"My Suika")
+arr x;
+for i in f<len(f)>{
+ int dist = delta(f,e)
+ x.add(dist) 
+}
+print(x)
