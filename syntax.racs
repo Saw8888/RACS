@@ -1,0 +1,16 @@
+addr m = 0x981923Ad819
+addrArr x = NULL
+arr y = null
+mem r = Null //A linked list with two variables per node, the address and the data
+str z = null
+
+main("MySuika"){
+ m -> 20 //Writes the value 20 to that address
+ 20 -> x //Finds all the addresses with value 20 and stores them in x
+ y -> read(x) //Finds the data associated with the addreses
+ for i in x{
+  if(r<i><0> -> read(x<i>) != 20){
+   print("DATA CHANGE AT",x<i>)
+  }	
+ }
+}

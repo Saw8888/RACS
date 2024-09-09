@@ -1,58 +1,32 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-#define MAX_LINES 100  // Maximum number of lines to read
-
-// Function to read a line dynamically
-char* readLine(FILE* file) {
- char *line = NULL;
- int ch;
- size_t length = 0;
- size_t bufferSize = 0;
-
- while ((ch = fgetc(file)) != '\n' && ch != EOF) {
-  if (length + 1 >= bufferSize) {
-   bufferSize = bufferSize == 0 ? 16 : bufferSize * 2;
-   line = realloc(line, bufferSize);
-  }
-  line[length++] = ch;
- }
-
- if (length == 0 && ch == EOF) {
-  free(line);
-  return NULL;  // End of file
- }
-
- line[length] = '\0';  // Null-terminate the string
- return line;
-}
+#include <string.h>
 
 int main() {
  FILE *file = fopen("input.txt", "r");
- if (file == NULL) {
-  printf("Error opening file\n");
-  return 1;
- }
+ if (!file) return 1;
 
- char *lines[MAX_LINES];
- int lineCount = 0;
+ char **lines = NULL;
+ char *buffer = NULL;
+ size_t len = 0;
+ ssize_t nread;
+ int count = 0;
 
- // Read lines into the array
- while (lineCount < MAX_LINES) {
-  char *line = readLine(file);
-  if (line == NULL) {
-   break;  // End of file or error
-  }
-  lines[lineCount++] = line;
+ while ((nread = getline(&buffer, &len, file)) != -1) {
+  lines = realloc(lines, (count + 1) * sizeof(char *));
+  lines[count] = strdup(buffer);
+  count++;
  }
 
  fclose(file);
+ free(buffer);
 
- // Print the lines
- for (int i = 0; i < lineCount; i++) {
-  printf("Line %d: %s\n", i + 1, lines[i]);
-  free(lines[i]);  // Free the memory for each line
+ for (int i = 0; i < count; i++) {
+  printf("%s", lines[i]);
  }
+ 
+ for (int i = 0; i < count; i++) {free(lines[i]);}
+ free(lines);
 
  return 0;
 }
