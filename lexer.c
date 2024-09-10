@@ -20,6 +20,8 @@ typedef enum {
  TOKEN_RPAREN,     // ')'
  TOKEN_LBRACE,     // '{'
  TOKEN_RBRACE,     // '}'
+ TOKEN_SETTINGS,   // '@'
+ TOKEN_STATIC,     // no change 
  TOKEN_SUM,        // add
  TOKEN_SUB,        // substracr
  TOKEN_DIV,        // divide
@@ -79,6 +81,7 @@ void scanToken(const char** current, Token* tokens, int* tokenCount) {
   case '+': tokens[(*tokenCount)++] = *createToken(TOKEN_SUM, "+", 1); break;
   case '*': tokens[(*tokenCount)++] = *createToken(TOKEN_MULT, "*", 1); break;
   case '/': tokens[(*tokenCount)++] = *createToken(TOKEN_SUB, "/", 1); break;
+  case '@': tokens[(*tokenCount)++] = *createToken(TOKEN_SETTINGS, "@", 1); break;
   case '-':
    if (match('>', current)) {
     tokens[(*tokenCount)++] = *createToken(TOKEN_ARROW, "->", 2);
@@ -119,6 +122,8 @@ void scanToken(const char** current, Token* tokens, int* tokenCount) {
      tokens[(*tokenCount)++] = *createToken(TOKEN_PRINT, value, length);
     } else if (strcmp(value, "int") == 0) {
      tokens[(*tokenCount)++] = *createToken(TOKEN_INT, value, length);
+    } else if (strcmp(value, "static") == 0) {
+     tokens[(*tokenCount)++] = *createToken(TOKEN_STATIC, value, length);
     } else {
      tokens[(*tokenCount)++] = *createToken(TOKEN_IDENTIFIER, value, length); // variable name
     }
