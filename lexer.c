@@ -43,10 +43,6 @@ typedef struct {
 } Token;
 
 int tokenCount = 0;
-Token *tokenArr;
-
-Token* scanTokens(const char* source);
-Token* createToken(TokenType type, const char* start, int length);
 
 int isAlpha(char c) {return (c >= 'a' && c <= 'z') || (c >= 'A' && c <= 'Z') || c == '_';}
 int isDigit(char c) {return c >= '0' && c <= '9';}
@@ -165,26 +161,4 @@ Token* scanTokens(const char* source) {
 
  tokens[tokenCount++] = *createToken(TOKEN_EOF, "", 0);
  return tokens;
-}
-
-int main(){
- char *filename = "test1.racs";
- FILE *fp = fopen(filename, "r");
-
- if (fp == NULL){printf("Error: could not open file %s", filename);return 1;}
-
- char *buffer = (char*)malloc(MAX_CHARACTERS * sizeof(char));
- if (buffer == NULL){fclose(fp);return 1;}
-
- fgets(buffer, MAX_CHARACTERS, fp);
-
- tokenArr = scanTokens(buffer);
-
- printf("%d\n", tokenArr[0].type);
- printf("%d\n", tokenArr[1].type);
- printf("%d\n", tokenArr[2].type);
- printf("%d\n", tokenArr[3].type);
-
- fclose(fp);
- return 0;
 }

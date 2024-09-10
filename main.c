@@ -1,32 +1,28 @@
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
+#include "lexer.h"
 
-int main() {
- FILE *file = fopen("input.txt", "r");
- if (!file) return 1;
+#define MAX_CHARACTERS 10000
+#define MAX_TOKENS 1000
 
- char **lines = NULL;
- char *buffer = NULL;
- size_t len = 0;
- ssize_t nread;
- int count = 0;
+Token *tokenArr;
 
- while ((nread = getline(&buffer, &len, file)) != -1) {
-  lines = realloc(lines, (count + 1) * sizeof(char *));
-  lines[count] = strdup(buffer);
-  count++;
- }
+int main(){
+ char *filename = "test1.racs";
+ FILE *fp = fopen(filename, "r");
 
- fclose(file);
- free(buffer);
+ if (fp == NULL){printf("Error: could not open file %s", filename);return 1;}
 
- for (int i = 0; i < count; i++) {
-  printf("%s", lines[i]);
- }
- 
- for (int i = 0; i < count; i++) {free(lines[i]);}
- free(lines);
+ char *buffer = (char*)malloc(MAX_CHARACTERS * sizeof(char));
+ if (buffer == NULL){fclose(fp);return 1;}
 
+ fgets(buffer, MAX_CHARACTERS, fp);
+
+ tokenArr = scanTokens(buffer);
+
+ printf("%d\n", tokenArr[0].type);
+ printf("%d\n", tokenArr[1].type);
+ printf("%d\n", tokenArr[2].type);
+ printf("%d\n", tokenArr[3].type);
+
+ fclose(fp);
  return 0;
 }
