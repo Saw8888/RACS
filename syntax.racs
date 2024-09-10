@@ -5,8 +5,6 @@ arr y = null
 mem r = Null //A linked list with two variables per node, the address and the data
 str z = null
 
-
-
 main("MySuika"){
  m -> 20 //Writes the value 20 to that address
  20 -> x //Finds all the addresses with value 20 and stores them in x
