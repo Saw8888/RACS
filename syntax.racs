@@ -1,3 +1,4 @@
+@static mem //Keeps the memory unchanged after the program's runtime
 addr m = 0x981923Ad819
 addrArr x = NULL
 arr y = null
