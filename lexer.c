@@ -14,8 +14,11 @@ typedef enum {
  TOKEN_MEM,        // 'mem'
  TOKEN_STR,        // 'str'
  TOKEN_MAIN,       // 'main'
- TOKEN_ARROW,      // '->'
+ TOKEN_ARROW_RIGHT,// '->'
+ TOKEN_ARROW_LEFT, // '<-'
  TOKEN_EQUAL,      // '='
+ TOKEN_SMALLER,    // '<'
+ TOKEN_BIGGER,     // '>'
  TOKEN_LPAREN,     // '('
  TOKEN_RPAREN,     // ')'
  TOKEN_LBRACE,     // '{'
@@ -78,12 +81,21 @@ void scanToken(const char** current, Token* tokens, int* tokenCount) {
   case '*': tokens[(*tokenCount)++] = *createToken(TOKEN_MULT, "*", 1); break;
   case '/': tokens[(*tokenCount)++] = *createToken(TOKEN_SUB, "/", 1); break;
   case '@': tokens[(*tokenCount)++] = *createToken(TOKEN_SETTINGS, "@", 1); break;
+  case '>': tokens[(*tokenCount)++] = *createToken(TOKEN_BIGGER, ">", 1); break;
   case '-':
    if (match('>', current)) {
-    tokens[(*tokenCount)++] = *createToken(TOKEN_ARROW, "->", 2);
+    tokens[(*tokenCount)++] = *createToken(TOKEN_ARROW_RIGHT, "->", 2);
    }
    else{
     tokens[(*tokenCount)++] = *createToken(TOKEN_SUB, "-", 1);
+   }
+   break;
+  case '<':
+   if (match('-', current)) {
+    tokens[(*tokenCount)++] = *createToken(TOKEN_ARROW_LEFT, "->", 2);
+   }
+   else{
+    tokens[(*tokenCount)++] = *createToken(TOKEN_SMALLER, "<", 1);
    }
    break;
   default:
