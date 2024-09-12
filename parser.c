@@ -148,7 +148,6 @@ ASTNode* parseExpression(Parser* parser) {
 
 ASTNode* parseProgram(Parser* parser) {
  ASTNode* programNode = createASTNode(AST_PROGRAM, NULL);
-
  while (peek(parser)->type != TOKEN_EOF) {
   if (peek(parser)->type == TOKEN_INT || peek(parser)->type == TOKEN_ADDR || peek(parser)->type == TOKEN_ARR || peek(parser)->type == TOKEN_STR) {
    addASTChild(programNode, parseVariableDeclaration(parser));
@@ -156,6 +155,8 @@ ASTNode* parseProgram(Parser* parser) {
    addASTChild(programNode, parseMain(parser));
   } else if (peek(parser)->type == TOKEN_SETTINGS) {
    advance(parser);//For now we ignore the @static
+  }else if (peek(parser)->type == TOKEN_IDENTIFIER) {
+   addASTChild(programNode, parseMain(parser));
   }
  }
 
@@ -193,5 +194,8 @@ Parser initParser(Token* tokens) {
  Parser parser;
  parser.tokens = tokens;
  parser.current = 0;
+ int size;
+ while (tokens[size].type != TOKEN_EOF) size++;
+ parser.tokenCount = size + 1;
  return parser;
 }
