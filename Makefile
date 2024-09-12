@@ -5,7 +5,7 @@ CFLAGS = $(INCLUDE_PATH) -std=c99
 TARGET = build/main
 
 # Specify the object files
-OBJECTS = build/main.o build/lexer.o
+OBJECTS = build/main.o build/lexer.o build/parser.o
 
 # Default target
 all: $(TARGET)
@@ -19,6 +19,9 @@ build/main.o: main.c
 
 build/lexer.o: lexer.c lexer.h
 	gcc -c lexer.c $(CFLAGS) -o build/lexer.o
+
+build/lexer.o: parser.c parser.h
+	gcc -c parser.c $(CFLAGS) -o build/parser.o
 
 # Add a clean target for convenience
 clean:

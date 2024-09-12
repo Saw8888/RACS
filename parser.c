@@ -32,13 +32,10 @@ typedef struct {
  int tokenCount;
 } Parser;
 
-Parser* createParser(Token* tokens, int tokenCount) {
- Parser* parser = (Parser*)malloc(sizeof(Parser));
- parser->tokens = tokens;
- parser->current = 0;
- parser->tokenCount = tokenCount;
- return parser;
-}
+ASTNode* parseProgram(Parser* parser);
+ASTNode* parseMain(Parser* parser);
+ASTNode* parseExpression(Parser* parser);
+ASTNode* parseStatement(Parser* parser);
 
 Token* peek(Parser* parser) {
  if (parser->current >= parser->tokenCount) return NULL;
@@ -65,7 +62,7 @@ ASTNode* createASTNode(ASTNodeType type, Token* token) {
  node->type = type;
  node->left = NULL;
  node->right = NULL;
- node->token = token;  // Store the lexed token directly
+ node->token = token;
  node->children = NULL;
  node->childrenCount = 0;
  return node;
@@ -110,13 +107,13 @@ ASTNode* parseBlock(Parser* parser) {
 ASTNode* parseMain(Parser* parser) {
  if (matchToken(parser, TOKEN_MAIN)) {
   matchToken(parser, TOKEN_LPAREN);
-  Token* fileToken = advance(parser); // File token
+  Token* fileToken = advance(parser);
   matchToken(parser, TOKEN_RPAREN);
 
   ASTNode* mainNode = createASTNode(AST_FUNC_DEF, peek(parser)); // Pass the 'main' token
   mainNode->left = createASTNode(AST_LITERAL, fileToken); // The file name token
   if (matchToken(parser, TOKEN_LBRACE)) {
-   mainNode->right = parseBlock(parser); // Parse the main block
+   mainNode->right = parseBlock(parser);
   }
 
   return mainNode;
@@ -128,12 +125,26 @@ ASTNode* parseExpression(Parser* parser) {
  Token* token = advance(parser);
 
  if (token->type == TOKEN_INT_DATA) {
-  return createASTNode(AST_LITERAL, token); // Pass the actual token
+  return createASTNode(AST_LITERAL, token);
  }
 
- // Handle more cases for variables, binary operators, etc.
+ if (token->type == TOKEN_IDENTIFIER) {
+  return createASTNode(AST_VAR, token);
+ }
+
+ // Handle binary operations like `x + 5`
+ if (token->type == TOKEN_SUM || token->type == TOKEN_SUB || token->type == TOKEN_MULT || token->type == TOKEN_DIV) {
+  ASTNode* left = parseExpression(parser);
+  ASTNode* right = parseExpression(parser);
+  ASTNode* opNode = createASTNode(AST_BIN_OP, token);
+  opNode->left = left;
+  opNode->right = right;
+  return opNode;
+ }
+
  return NULL;
 }
+
 
 ASTNode* parseProgram(Parser* parser) {
  ASTNode* programNode = createASTNode(AST_PROGRAM, NULL);
@@ -144,9 +155,43 @@ ASTNode* parseProgram(Parser* parser) {
   } else if (peek(parser)->type == TOKEN_MAIN) {
    addASTChild(programNode, parseMain(parser));
   } else if (peek(parser)->type == TOKEN_SETTINGS) {
-   advance(parser);
+   advance(parser);//For now we ignore the @static
   }
  }
 
  return programNode;
+}
+
+ASTNode* parseStatement(Parser* parser) {
+ Token* token = peek(parser);
+ if (token->type == TOKEN_INT || token->type == TOKEN_ADDR || token->type == TOKEN_ARR || token->type == TOKEN_STR) {
+  return parseVariableDeclaration(parser);
+ } else if (token->type == TOKEN_IDENTIFIER) {
+  Token* nextToken = peek(parser + 1);
+  if (nextToken && nextToken->type == TOKEN_EQUAL) {
+   return parseVariableDeclaration(parser); // Reuse parseVariableDeclaration for assignments
+  } else {
+   return parseExpression(parser); // This might need to be adjusted for actual function calls
+  }
+ } else if (token->type == TOKEN_PRINT) {
+  advance(parser);
+  ASTNode* exprNode = parseExpression(parser);
+  ASTNode* printNode = createASTNode(AST_PRINT, token);
+  printNode->left = exprNode;
+  return printNode;
+ } else if (token->type == TOKEN_IF) {
+  
+ } else if (token->type == TOKEN_FOR) {
+ }
+
+ // Handle other statement types or errors
+ return NULL;
+}
+
+
+Parser initParser(Token* tokens) {
+ Parser parser;
+ parser.tokens = tokens;
+ parser.current = 0;
+ return parser;
 }

@@ -1,4 +1,4 @@
-#include "lexer.h"
+#include "parser.h"
 
 #define MAX_CHARACTERS 10000
 #define MAX_TOKENS 1000
@@ -22,6 +22,9 @@ int main(){
  printf("%d\n", tokenArr[1].type);
  printf("%d\n", tokenArr[2].type);
  printf("%d\n", tokenArr[3].type);
+
+ Parser parseStruct = initParser(tokenArr);
+ ASTNode *AST = parseProgram(&parseStruct);
 
  fclose(fp);
  return 0;
