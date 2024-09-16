@@ -194,7 +194,7 @@ Parser initParser(Token* tokens) {
  Parser parser;
  parser.tokens = tokens;
  parser.current = 0;
- int size;
+ int size = 0;
  while (tokens[size].type != TOKEN_EOF) size++;
  parser.tokenCount = size + 1;
  return parser;
