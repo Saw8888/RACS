@@ -80,10 +80,10 @@ void printNode(char* buffer, ASTNode* node) {
 int _printAST(ASTNode* node, int is_left, int offset, int depth, char s[MAX_HEIGHT][MAX_WIDTH]) {
   char b[20];
   int width = 7;
-
   if (!node) return 0;
 
   printNode(b, node);
+  //Random comment
 
   int left  = _printAST(node->left,  1, offset,                depth + 1, s);
   int right = _printAST(node->right, 0, offset + left + width, depth + 1, s);
