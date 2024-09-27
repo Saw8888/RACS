@@ -9,7 +9,7 @@
 
 Token *tokenArr;
 
-const char* getASTNodeTypeString(ASTNodeType type) {
+const char* getASTNodeTypeName(ASTNodeType type) {
   switch (type) {
     case AST_PROGRAM: return "PROGRAM";
     case AST_FUNC_DEF: return "FUNC_DEF";
@@ -67,57 +67,61 @@ const char* getTokenTypeString(TokenType type) {
   }
 }
 
-// Helper function to print AST node content
-void printNode(char* buffer, ASTNode* node) {
-  if (node->token) {
-    sprintf(buffer, "(%s, %s)", getASTNodeTypeString(node->type), node->token->value);
-  } else {
-    sprintf(buffer, "(%s)", getASTNodeTypeString(node->type));
-  }
+
+// Function to format and print the AST nodes in an ASCII tree
+int _print_ast(ASTNode *node, int is_left, int offset, int depth, char s[20][255]) {
+    char b[50];  // Larger buffer to fit node type or token value
+    int width = 9; // Increased width for larger node labels
+
+    if (!node) return 0;
+
+    // If the node has a token, print its value; otherwise, print the node type
+    if (node->token && node->token->value) {
+        snprintf(b, sizeof(b), "(%s)", node->token->value);
+    } else {
+        snprintf(b, sizeof(b), "[%s]", getASTNodeTypeName(node->type));
+    }
+
+    int left  = _print_ast(node->left,  1, offset,                depth + 1, s);
+    int right = _print_ast(node->right, 0, offset + left + width, depth + 1, s);
+
+    // Print the current node in the string array 's'
+    for (int i = 0; i < width && b[i] != '\0'; i++)
+        s[2 * depth][offset + left + i] = b[i];
+
+    // Connect left and right children with lines in the ASCII tree
+    if (depth && is_left) {
+        for (int i = 0; i < width + right; i++)
+            s[2 * depth - 1][offset + left + width / 2 + i] = '-';
+        s[2 * depth - 1][offset + left + width / 2] = '+';
+    } else if (depth && !is_left) {
+        for (int i = 0; i < left + width; i++)
+            s[2 * depth - 1][offset - width / 2 + i] = '-';
+        s[2 * depth - 1][offset + left + width / 2] = '+';
+    }
+
+    // Recursively print the children (if any)
+    int child_offset = offset + left + width;
+    for (int i = 0; i < node->childrenCount; i++) {
+        child_offset += _print_ast(node->children[i], 0, child_offset, depth + 1, s);
+    }
+
+    return left + width + right;
 }
 
-// Recursive function to print the AST in tree format
-int _printAST(ASTNode* node, int is_left, int offset, int depth, char s[MAX_HEIGHT][MAX_WIDTH]) {
-  char b[20];
-  int width = 7;
-  if (!node) return 0;
+// Public function to print the AST
+void print_ast(ASTNode *root) {
+    char s[20][255];
+    for (int i = 0; i < 20; i++) {
+        sprintf(s[i], "%80s", " ");
+    }
 
-  printNode(b, node);
-  //Random comment
+    _print_ast(root, 0, 0, 0, s);
 
-  int left  = _printAST(node->left,  1, offset,                depth + 1, s);
-  int right = _printAST(node->right, 0, offset + left + width, depth + 1, s);
-
-  for (int i = 0; i < width; i++)
-    s[2 * depth][offset + left + i] = b[i];
-
-  if (depth && is_left) {
-    for (int i = 0; i < width + right; i++)
-      s[2 * depth - 1][offset + left + width/2 + i] = '-';
-    s[2 * depth - 1][offset + left + width/2] = '+';
-  } else if (depth && !is_left) {
-    for (int i = 0; i < left + width; i++)
-      s[2 * depth - 1][offset - width/2 + i] = '-';
-    s[2 * depth - 1][offset + left + width/2] = '+';
-  }
-
-  return left + width + right;
+    for (int i = 0; i < 20; i++) {
+        printf("%s\n", s[i]);
+    }
 }
-
-// Print the full AST tree
-void printAST(ASTNode* root) {
-  char s[MAX_HEIGHT][MAX_WIDTH];
-  for (int i = 0; i < MAX_HEIGHT; i++)
-    sprintf(s[i], "%80s", " ");
-
-  _printAST(root, 0, 0, 0, s);
-
-  for (int i = 0; i < MAX_HEIGHT; i++) {
-    if (strlen(s[i]) > 0)
-      printf("%s\n", s[i]);
-  }
-}
-
 
 int main(){
  char *filename = "test1.racs";
@@ -145,7 +149,7 @@ int main(){
   return 1;
  }
 
- printAST(AST);
+ print_ast(AST);
 
  fclose(fp);
  return 0;
